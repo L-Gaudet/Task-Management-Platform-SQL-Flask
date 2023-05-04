@@ -1,11 +1,12 @@
 # from flask import Flask
 # from flask import Flask, request, render_template, 
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, url_for, session
 
 from db_api import db_operations
 
 
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Qfdz\n\xec]/'
 
 db_ops = db_operations()
 # print(db_ops.get_all_users())
@@ -15,17 +16,19 @@ db_ops = db_operations()
 def login():
     if request.method == 'POST':
         # Handle form submission
+        print(request.form)
         email = request.form['email']
         password = request.form['password']
         # Check if the email and password are correct (you would need to implement this logic yourself)
-        if email == 'myemail' and password == 'mypassword':
+        if email == 'email@email.com' and password == 'password123':
             # Redirect to the dashboard page
+            session['currentUserID'] = 1
             return redirect(url_for('dashboard'))
         else:
             # Show an error message
-            error = 'Invalid credentials. Please try again.'
-            flash('Invalid credentials. Please try again.')
-            return render_template('login.html', error=error)
+            error = 'Invalid username or password. Please try again.'
+            # flash('Invalid username or password. Please try again.')
+            return render_template('picoLogin.html', error=error)
     else:
         # Display the login page
         return render_template('picoLogin.html')
@@ -34,31 +37,50 @@ def login():
 def signup():
     if request.method == 'POST':
         # Handle form submission
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
+        name = request.form['name']
         email = request.form['email']
         password = request.form['password']
 
-        print(first_name, last_name, email, password)
+        print(name, email, password)
 
         # check if email exists already
         
         # add to database
 
-        if email == 'myemail' and password == 'mypassword':
+        if email == 'email@email.com' and password == 'password123':
             # Redirect to the dashboard page
             return redirect(url_for('dashboard'))
         else:
             # Show an error message
-            error = 'Invalid credentials. Please try again.'
-            flash('User with this email already exists.')
+            error = 'User with this email already exists.'
             return render_template('signup.html', error=error)
     else:
         # Display the login page
         return render_template('signup.html')
+    
+@app.route('/logout', methods=['GET'])
+def logout():
+    session['currentUserID'] = -1
+    return redirect(url_for('login'))
 
 # Define a route for the dashboard page
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
-    # Display the dashboard page
-    return render_template('dashboard.html')
+    if request.method == 'POST':
+        pass
+    else:
+        # get username and groups and tasks
+        userInfo = {}
+        userInfo['id'] = session['currentUserID']
+        userInfo['name'] = 'bruh'
+
+
+        # Display the dashboard page
+        return render_template('dashboard.html', userInfo=userInfo)
+    
+
+# @app.route('/add_task')
+# def add_task():
+#     group_id = request.args.get('group_id')
+#     # render the add_task.html template with the group_id passed as a parameter
+#     return render_template('add_task.html', group_id=group_id)

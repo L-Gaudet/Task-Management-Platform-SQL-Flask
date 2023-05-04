@@ -1,9 +1,113 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
-    <h1>Dashboard</h1>
-</body>
-</html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Dashboard</title>
+        <meta name="description" content="See your groups and tasks" />
+        <link rel="shortcut icon" href="https://picocss.com/favicon.ico" />
+        <link rel="canonical" href="https://picocss.com/examples/sign-in/" />
+
+        <!-- Pico.css -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+
+        <!-- Custom styles for this example -->
+        <!-- <link rel="stylesheet" href="custom.css" /> -->
+    </head>
+
+    <body>
+    <!-- Nav -->
+        <nav class="container-fluid">
+            <ul>
+                <li>
+                    <a href="./" class="contrast" onclick="event.preventDefault()"><strong>TaskApp</strong></a>
+                </li>
+            </ul>
+            <ul>
+                <li>
+                    <a href="/logout" class="contrast"><strong>Logout</strong></a>
+                </li>
+            </ul>
+        </nav>
+    <!-- ./ Nav -->
+
+    <!-- Main -->
+    <main class="container">
+        <!-- <h1>Welcome, {{userInfo}}</h1> -->
+        <hgroup>
+            <h2>Group 1</h2>
+        </hgroup>
+        <article class="grid">
+            <table></table>
+            <input type="checkbox" checked/>
+        </article>
+
+        <!-- code for dynamically creating the group task tables -->
+        <!-- {% for group in userInfo['groups'] %}
+            <h2>{{ group['group_name'] }}</h2>
+            <article class="grid">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in group['tasks'] %}
+                            <tr>
+                                <td><input type="checkbox" class="task-checkbox" data-task-id="{{ task['id'] }}"></td>
+                                <td>{{ task['title'] }}</td>
+                                <td>{{ task['description'] }}</td>
+                                <td>{{ task['status'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button class="add-task-btn" data-group-id="{{ group.id }}">Add New Task</button>
+            </article>
+        {% endfor %} -->
+    
+
+
+    </main>
+    <!-- ./ Main -->
+
+    <!-- Footer -->
+    <footer class="container-fluid">
+        <!-- <small
+        >Built with <a href="https://picocss.com" class="secondary">Pico</a> •
+        <a href="https://github.com/picocss/examples/tree/master/v1-sign-in/" class="secondary"
+            >Source code</a
+        ></small
+        > -->
+    </footer>
+    <!-- ./ Footer -->
+
+    <!-- Minimal theme switcher -->
+    
+    <script>
+    // script for taking action when a checkbox is changed
+        // $(document).on('change', '.task-checkbox', function() {
+        //     var taskId = $(this).data('task-id');
+        //     if ($(this).is(':checked')) {
+        //         console.log('Task ' + taskId + ' is checked');
+        //         // Do something when the checkbox is checked
+        //     } else {
+        //         console.log('Task ' + taskId + ' is unchecked');
+        //         // Do something when the checkbox is unchecked
+        //     }
+        // });
+    </script>
+    <script>
+    // script for takking action when adding new task
+        // $(document).ready(function() {
+        //     $('.add-task-btn').click(function() {
+        //         var groupId = $(this).data('group-id');
+        //         window.location.href = '/add_task?group_id=' + groupId;
+        //     });
+        // });
+    </script>        
+    </body>
+    </html>
