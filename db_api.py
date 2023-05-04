@@ -33,12 +33,12 @@ class db_operations:
         ''' %emailToCheck
         try:
             #find the userID
-            if self.cursor.execute(query):
-                print(self.cursor.fetchone()[0])
-                print("this email is already being used")
-                return 1
+            self.cursor.execute(query)
+            print(self.cursor.fetchone()[0])
+            # email exists
+            return 1
         except:
-            print("this is a unique email")
+            # email does not exist
             return 0
     
     #checking if the given password matches
@@ -58,6 +58,26 @@ class db_operations:
         else:
             print("the passwords don't match")
             return 0
+        
+    def get_user_id(self, email):
+        query = '''
+        SELECT userID
+        FROM users
+        WHERE email = '%s'
+        ''' % email
+        self.cursor.execute(query)
+        # print(self.cursor.fetchone()[0])
+        return self.cursor.fetchone()[0]
+    
+    def get_user_name(self, id):
+        query = '''
+        SELECT name
+        FROM users
+        WHERE userID = '%s'
+        ''' % id
+        self.cursor.execute(query)
+        return self.cursor.fetchone()[0]
+
     
     #insert a new user
     def new_user(self, nameToAdd, emailToAdd, passwordToAdd):
@@ -72,18 +92,15 @@ class db_operations:
         print("New User added!")
         
     #get group membership given an email
-    def get_groups(self, lookUpEmail):
-        print("Finding groups for:", lookUpEmail)
+    def get_groups(self, lookUpID):
+        print("Finding groups for:", lookUpID)
         query = '''
         SELECT g.groupID
         FROM groupMembers g
             INNER JOIN users u
             ON g.userID = u.userID
-        WHERE g.userID = (
-            SELECT userID
-            FROM users
-            WHERE email = '%s');
-        ''' %lookUpEmail
+        WHERE g.userID = '%s';
+        ''' % lookUpID
         self.cursor.execute(query)
         results = self.cursor.fetchall()
         group_list = []
@@ -91,21 +108,31 @@ class db_operations:
             group_list.append(i[0])
         print("group list is:", group_list)
         return group_list
+    
+    def get_group_names(self, groupID):
+        query = '''
+        SELECT name
+        FROM userGroups
+        WHERE groupID = '%s';
+        ''' % groupID
+        self.cursor.execute(query)
+        result = self.cursor.fetchone()[0]
+        return result
         
     #get all the tasks for each group user is in       
     def get_group_tasks(self, groupLookUp):
         print("getting tasks for group:", groupLookUp)
         query = '''
-        SELECT t.title, t.dueDate, t.status, c.name AS category
+        SELECT t.taskID, t.title, t.dueDate, t.status, c.name AS category, c.priority AS priority
         FROM tasks t
             INNER JOIN category c
             ON t.categoryID = c.categoryID
-        WHERE groupID = '%s'
+        WHERE t.groupID = '%s'
         ORDER BY t.status ASC;
         ''' %groupLookUp
         self.cursor.execute(query)
         results = self.cursor.fetchall()
-        print(results)
+        return results
     
     #get the subtasks for a given task  
     def get_subtasks(self, taskID):
@@ -144,9 +171,9 @@ class db_operations:
         #print("moving task to group:", group)
         
     
-db_ops = db_operations()
+# db_ops = db_operations()
 # EMAIL CHECK
-emailToCheck = input("enter the email ")
+# emailToCheck = input("enter the email ")
 # passwordToCheck = input("enter the password ")
 # db_ops.check_password(emailToCheck, passwordToCheck)
 
@@ -161,5 +188,5 @@ emailToCheck = input("enter the email ")
 #     db_ops.get_group_tasks(i)
     
 # db_ops.get_subtasks(1)
-group = input("what group is user moving to:")
-db_ops.change_group(emailToCheck, group)
+# group = input("what group is user moving to:")
+# db_ops.change_group(emailToCheck, group)

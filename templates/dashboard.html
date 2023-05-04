@@ -33,41 +33,48 @@
 
     <!-- Main -->
     <main class="container">
-        <!-- <h1>Welcome, {{userInfo}}</h1> -->
-        <hgroup>
+        <h1>Welcome, {{userInfo['name']}}</h1>
+        <!-- <hgroup>
             <h2>Group 1</h2>
         </hgroup>
         <article class="grid">
             <table></table>
             <input type="checkbox" checked/>
-        </article>
+        </article> -->
 
         <!-- code for dynamically creating the group task tables -->
-        <!-- {% for group in userInfo['groups'] %}
-            <h2>{{ group['group_name'] }}</h2>
+        {% for groupName, tasks in userInfo['groups'].items() %}
             <article class="grid">
+                <h2>{{ groupName }}</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>Task</th>
-                            <th>Description</th>
                             <th>Status</th>
+                            <th>Title</th>
+                            <th>Due Date</th>
+                            <th>Category</th>
+                            <th>Priority</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for task in group['tasks'] %}
+                        {% for task in tasks %}
                             <tr>
-                                <td><input type="checkbox" class="task-checkbox" data-task-id="{{ task['id'] }}"></td>
-                                <td>{{ task['title'] }}</td>
-                                <td>{{ task['description'] }}</td>
-                                <td>{{ task['status'] }}</td>
+                                {% if task[3] == 0 %}
+                                    <td><input type="checkbox" class="task-checkbox" data-task-id="{{ task['id'] }}"></td>
+                                {% else %}
+                                    <td><input type="checkbox" class="task-checkbox" data-task-id="{{ task['id'] }}" checked></td>
+                                {% endif %}
+                                <td>{{ task[1] }}</td>
+                                <td><time datetime="{{ task[2] }}">{{ task[2] }}</time></td> 
+                                <td>{{ task[4] }}</td>
+                                <td>{{ task[5] }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                <button class="add-task-btn" data-group-id="{{ group.id }}">Add New Task</button>
+
             </article>
-        {% endfor %} -->
+        {% endfor %}
     
 
 
@@ -88,17 +95,19 @@
     <!-- Minimal theme switcher -->
     
     <script>
+    // <!--
     // script for taking action when a checkbox is changed
-        // $(document).on('change', '.task-checkbox', function() {
-        //     var taskId = $(this).data('task-id');
-        //     if ($(this).is(':checked')) {
-        //         console.log('Task ' + taskId + ' is checked');
-        //         // Do something when the checkbox is checked
-        //     } else {
-        //         console.log('Task ' + taskId + ' is unchecked');
-        //         // Do something when the checkbox is unchecked
-        //     }
-        // });
+    //     $(document).on('change', '.task-checkbox', function() {
+    //         var taskId = $(this).data('task-id');
+    //         if ($(this).is(':checked')) {
+    //             console.log('Task ' + taskId + ' is checked');
+    //             // Do something when the checkbox is checked
+    //         } else {
+    //             console.log('Task ' + taskId + ' is unchecked');
+    //             // Do something when the checkbox is unchecked
+    //         }
+    //     });
+    // -->
     </script>
     <script>
     // script for takking action when adding new task

@@ -20,14 +20,17 @@ def login():
         email = request.form['email']
         password = request.form['password']
         # Check if the email and password are correct (you would need to implement this logic yourself)
-        if email == 'email@email.com' and password == 'password123':
-            # Redirect to the dashboard page
-            session['currentUserID'] = 1
-            return redirect(url_for('dashboard'))
+        if db_ops.check_email(email) == 1:
+            if db_ops.check_password(email, password) == 1:
+                session['currentUserID'] = db_ops.get_user_id(email)
+                return redirect(url_for('dashboard'))
+            else:
+                # Show an error message
+                error = 'Invalid email or password. Please try again.'
+                return render_template('picoLogin.html', error=error)
         else:
             # Show an error message
-            error = 'Invalid username or password. Please try again.'
-            # flash('Invalid username or password. Please try again.')
+            error = 'Invalid email or password. Please try again.'
             return render_template('picoLogin.html', error=error)
     else:
         # Display the login page
@@ -71,10 +74,24 @@ def dashboard():
     else:
         # get username and groups and tasks
         userInfo = {}
+        userGroupIDs = db_ops.get_groups(session['currentUserID'])
+        print(userGroupIDs)
+        groupTasks = {}
+
+        # get names of each group
+        groupNames = [db_ops.get_group_names(id) for id in userGroupIDs ] 
+
+        # get tasks for each group
+        for i in range(len(groupNames)):
+            groupTasks[groupNames[i]] = db_ops.get_group_tasks(userGroupIDs[i])
+
+        # dictionary with keys as group names, tasks and values
+        userInfo['groups'] = groupTasks
+
         userInfo['id'] = session['currentUserID']
-        userInfo['name'] = 'bruh'
+        userInfo['name'] = db_ops.get_user_name(session['currentUserID'])
 
-
+        print(userInfo)
         # Display the dashboard page
         return render_template('dashboard.html', userInfo=userInfo)
     
