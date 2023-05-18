@@ -248,6 +248,22 @@ class db_operations:
         self.cursor.execute(query)
         self.connection.commit()
 
+    def insert_new_subtask(self, title, dueDate, parent_task):
+        query = '''
+        INSERT into subTasks(title, dueDate, taskID)
+        VALUES('%s', '%s', '%s');
+        ''' % (title, dueDate, parent_task)
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def delete_subtask(self, subTaskID):
+        query = '''
+        DELETE FROM subTasks
+        WHERE subTaskID = '%s';
+        ''' % subTaskID
+        self.cursor.execute(query)
+        self.connection.commit()
+
     def delete_task(self, taskID):
         query = '''
         DELETE FROM subTasks
@@ -263,11 +279,12 @@ class db_operations:
         self.cursor.execute(query)
         self.connection.commit()
 
+
     def set_task_status(self, taskID, newStatus):
         query = '''
         UPDATE tasks
         SET status = '%s'
-        WHERE taskID = '%s'
+        WHERE taskID = '%s';
         ''' % (newStatus, taskID)
         self.cursor.execute(query)
         self.connection.commit()
@@ -276,7 +293,17 @@ class db_operations:
         query = '''
         UPDATE subTasks
         SET status = '%s'
-        WHERE subTaskID = '%s'
+        WHERE subTaskID = '%s';
         ''' % (newStatus, taskID)
         self.cursor.execute(query)
         self.connection.commit()
+
+    def get_taskname_from_id(self, taskID):
+        query = '''
+        SELECT title
+        FROM tasks
+        WHERE taskID = '%s';
+        ''' % taskID
+        self.cursor.execute(query)
+        taskName = self.cursor.fetchone()[0]
+        return taskName

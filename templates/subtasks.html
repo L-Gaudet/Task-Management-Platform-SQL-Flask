@@ -62,8 +62,8 @@
                                 <td>{{ task[1] }}</td>
                                 <td><time datetime="{{ task[2] }}">{{ task[2] }}</time></td> 
                                 <td>
-                                    <form action="{{ url_for('delete_task') }}" method="POST">
-                                        <input type="hidden" name="task_id" value="{{ task['id'] }}">
+                                    <form action="{{ url_for('delete_subtask') }}" method="POST">
+                                        <input type="hidden" name="task_id" value="{{ task[0] }}">
                                         <button type="submit" class="secondary outline">Delete</button>
                                     </form>
                                 </td>

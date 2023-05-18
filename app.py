@@ -72,6 +72,7 @@ def dashboard():
         pass
     else:
         # get username and groups and tasks
+        session['curFocusedTaskID'] = None
         userInfo = {}
         userGroupIDs = db_ops.get_groups(session['currentUserID'])
         print(userGroupIDs)
@@ -118,14 +119,12 @@ def create_subtask():
     if request.method == 'POST':
         title = request.form['title']
         dueDate = request.form['duedate']
-        categoryName = request.form['category']
-        groupName = request.form['group']
-        userID = session['currentUserID']
+        parent_task = session['curFocusedTaskID']
 
-        db_ops.insert_new_task(title, dueDate, categoryName, groupName, userID)
-        return redirect(url_for('dashboard'))
+        db_ops.insert_new_subtask(title, dueDate, parent_task)
+        return redirect(url_for('subtasks'))
     else:
-        return render_template('create_task.html')
+        return render_template('create_subtask.html')
 
 
 @app.route('/delete_task', methods=['POST'])
@@ -136,6 +135,15 @@ def delete_task():
     # delete the task with the given ID from the database
     # return a response indicating success or failure
 
+@app.route('/delete_subtask', methods=['POST'])
+def delete_subtask():
+    task_id = request.form['task_id']
+    print('task to delete: ', task_id)
+    db_ops.delete_subtask(task_id)
+    return redirect(url_for('subtasks'))
+    # delete the task with the given ID from the database
+    # return a response indicating success or failure
+
 @app.route('/subtasks', methods=['GET', 'POST'])
 def subtasks():
     if request.method == 'POST':
@@ -143,6 +151,7 @@ def subtasks():
         info = {}
         info['task_name'] = request.form['task_name']
         info['subtasks'] = db_ops.get_subtasks(request.form['task_id'])
+        session['curFocusedTaskID'] = request.form['task_id']
         if len(info['subtasks']) == 0:
             info['empty'] = 1
         else:
@@ -150,12 +159,16 @@ def subtasks():
         print(info['subtasks'])
         return render_template('subtasks.html', info=info)
     else:
-        print(request.form['task_id'])
-        # taskInfo = {}
+        info = {}
+        info['task_name'] = db_ops.get_taskname_from_id(session['curFocusedTaskID'])
+        info['subtasks'] = db_ops.get_subtasks(session['curFocusedTaskID'])
+        if len(info['subtasks']) == 0:
+            info['empty'] = 1
+        else:
+            info['empty'] = 0
+        print(info['subtasks'])
+        return render_template('subtasks.html', info=info)
 
-
-
-        return render_template('subtasks.html')
 
 @app.route('/update_task_status', methods=['POST'])
 def update_task_status():
