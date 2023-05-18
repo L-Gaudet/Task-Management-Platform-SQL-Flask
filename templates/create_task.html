@@ -28,51 +28,47 @@
 
     <!-- Main -->
     <main class="container">
+        <h1>Create New Task</h1>
         <article class="grid">
             {% if error %}
                 <p class='error'>{{ error }}</p>
             {% endif %}
             <div>
-                <hgroup>
-                <h1>Welcome to TaskApp!</h1>
-                <h2>Sign up</h2>
-                </hgroup>
                 <form method="post">
                     <input
                         type="text"
-                        name="name"
-                        placeholder="Name"
-                        aria-label="name"
-                        autocomplete="nickname"
+                        name="title"
+                        placeholder="Title"
+                        aria-label="title"
+                        autocomplete="title"
                         required
                     />
                     <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        aria-label="email"
-                        autocomplete="name@email.com"
+                        type="datetime-local"
+                        name="duedate"
+                        placeholder="Due Date"
+                        aria-label="duedate"
+                        autocomplete="duedate"
                         required
                     />
                     <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        aria-label="Password"
-                        autocomplete="current-password"
+                        type="text"
+                        name="category"
+                        placeholder="Category"
+                        aria-label="category"
+                        autocomplete="category"
                         required
                     />
-                    <fieldset>
-                        <label for="remember">
-                        <input type="checkbox" role="switch" id="remember" name="remember" />
-                        Remember me
-                        </label>
-                    </fieldset>
-                    <button type="submit" class="contrast">Sign Up</button>
-                </form>
-                <small>
-                    <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here!</a></p>
-                </small>       
+                    <input
+                        type="text"
+                        name="group"
+                        placeholder="Group"
+                        aria-label="group"
+                        autocomplete="group"
+                        required
+                    />
+                    <button type="submit" class="contrast">Create Task</button>
+                </form>      
             </div>
         <div></div>
         </article>

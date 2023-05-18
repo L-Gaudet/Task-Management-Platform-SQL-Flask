@@ -47,16 +47,13 @@ def signup():
         print(name, email, password)
 
         # check if email exists already
-        
-        # add to database
-
-        if email == 'email@email.com' and password == 'password123':
-            # Redirect to the dashboard page
-            return redirect(url_for('dashboard'))
-        else:
-            # Show an error message
-            error = 'User with this email already exists.'
+        if db_ops.check_email(email) == 1:
+            error = 'User with this email already exists.' 
             return render_template('signup.html', error=error)
+        else:
+            db_ops.new_user(name, email, password)
+            session['currentUserID'] = db_ops.get_user_id(email)
+            return redirect(url_for('dashboard'))
     else:
         # Display the login page
         return render_template('signup.html')
@@ -64,6 +61,8 @@ def signup():
 @app.route('/logout', methods=['GET'])
 def logout():
     session['currentUserID'] = -1
+    session['name'] = None
+    session['curFocusedTaskID'] = None # ? maybe idk
     return redirect(url_for('login'))
 
 # Define a route for the dashboard page
@@ -90,14 +89,92 @@ def dashboard():
 
         userInfo['id'] = session['currentUserID']
         userInfo['name'] = db_ops.get_user_name(session['currentUserID'])
+        session['name'] = userInfo['name']
+        # session['categories'] = db_ops.get_categories()
 
         print(userInfo)
         # Display the dashboard page
         return render_template('dashboard.html', userInfo=userInfo)
+
+
+@app.route('/create_task', methods=['GET', 'POST'])
+def create_task():
+    if request.method == 'POST':
+        title = request.form['title']
+        dueDate = request.form['duedate']
+        categoryName = request.form['category']
+        groupName = request.form['group']
+        userID = session['currentUserID']
+
+        db_ops.insert_new_task(title, dueDate, categoryName, groupName, userID)
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('create_task.html')
     
 
-# @app.route('/add_task')
-# def add_task():
-#     group_id = request.args.get('group_id')
-#     # render the add_task.html template with the group_id passed as a parameter
-#     return render_template('add_task.html', group_id=group_id)
+# CHANGE TO SUBTASK STUFF STIL
+@app.route('/create_subtask', methods=['GET', 'POST'])
+def create_subtask():
+    if request.method == 'POST':
+        title = request.form['title']
+        dueDate = request.form['duedate']
+        categoryName = request.form['category']
+        groupName = request.form['group']
+        userID = session['currentUserID']
+
+        db_ops.insert_new_task(title, dueDate, categoryName, groupName, userID)
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('create_task.html')
+
+
+@app.route('/delete_task', methods=['POST'])
+def delete_task():
+    task_id = request.form['task_id']
+    db_ops.delete_task(task_id)
+    return redirect(url_for('dashboard'))
+    # delete the task with the given ID from the database
+    # return a response indicating success or failure
+
+@app.route('/subtasks', methods=['GET', 'POST'])
+def subtasks():
+    if request.method == 'POST':
+        print(request.form['task_id'])
+        info = {}
+        info['task_name'] = request.form['task_name']
+        info['subtasks'] = db_ops.get_subtasks(request.form['task_id'])
+        if len(info['subtasks']) == 0:
+            info['empty'] = 1
+        else:
+            info['empty'] = 0
+        print(info['subtasks'])
+        return render_template('subtasks.html', info=info)
+    else:
+        print(request.form['task_id'])
+        # taskInfo = {}
+
+
+
+        return render_template('subtasks.html')
+
+@app.route('/update_task_status', methods=['POST'])
+def update_task_status():
+    task_id = request.form.get('taskId')
+    newStatus = 1 if request.form.get('completed')=='true' else 0
+    
+    print(task_id, newStatus)
+    
+    db_ops.set_task_status(taskID=task_id, newStatus=newStatus)
+
+    return "updated status"
+
+@app.route('/update_subtask_status', methods=['POST'])
+def update_subtask_status():
+    task_id = request.form.get('taskId')
+    newStatus = 1 if request.form.get('completed')=='true' else 0
+    
+    print(task_id, newStatus)
+    
+    db_ops.set_subtask_status(taskID=task_id, newStatus=newStatus)
+
+    return "updated status"

@@ -109,6 +109,16 @@ class db_operations:
         print("group list is:", group_list)
         return group_list
     
+    # def get_group_categories(self, groupID):
+    #     query = '''
+    #     SELECT name
+    #     FROM userGroups
+    #     WHERE groupID = '%s';
+    #     ''' % groupID
+    #     self.cursor.execute(query)
+    #     result = self.cursor.fetchone()[0]
+    #     return result
+    
     def get_group_names(self, groupID):
         query = '''
         SELECT name
@@ -138,7 +148,7 @@ class db_operations:
     def get_subtasks(self, taskID):
         print("getting subtasks for task:", taskID)
         query = '''
-        SELECT title, dueDate, status
+        SELECT subTaskID, title, dueDate, status
         FROM subtasks
         WHERE taskID = '%s'
         ORDER BY status ASC;
@@ -146,7 +156,7 @@ class db_operations:
         self.cursor.execute(query)
         results = self.cursor.fetchall()
         print(results)
-        
+        return results
     
     #edit groups functionality
     #change user group or task group
@@ -169,24 +179,104 @@ class db_operations:
         self.connection.commit()
         #change task group?
         #print("moving task to group:", group)
+
+
+    def insert_new_task(self, title, dueDate, categoryName, groupName, userID):
+        # get group ID
+            # if it does not exist, create it
+        query = '''
+        SELECT groupID
+        FROM userGroups
+        WHERE name = '%s';
+        ''' % groupName.lower()
+        try:
+            self.cursor.execute(query)
+            groupID = self.cursor.fetchone()[0]
+        except:
+            query = '''
+            INSERT into userGroups(name)
+            VALUES('%s');
+            ''' % groupName
+            self.cursor.execute(query)
+            self.connection.commit()
+            
+            query = '''
+            SELECT groupID
+            FROM userGroups
+            WHERE name = '%s';
+            ''' % groupName
+            self.cursor.execute(query)
+            groupID = self.cursor.fetchone()[0]
+
+            query = '''
+            INSERT into groupMembers
+            VALUES('%i', '%i');
+            ''' % (userID, groupID)
+            self.cursor.execute(query)
+            self.connection.commit()
+
+        # get category ID
+            # if it does not exist, create it
+        query = '''
+        SELECT categoryID
+        FROM category
+        WHERE name = '%s';
+        ''' % categoryName.lower()
+        try:
+            self.cursor.execute(query)
+            categoryID = self.cursor.fetchone()[0]
+        except:
+            query = '''
+            INSERT into category(name)
+            VALUES('%s');
+            ''' % categoryName
+            self.cursor.execute(query)
+            self.connection.commit()
+            
+            query = '''
+            SELECT categoryID
+            FROM category
+            WHERE name = '%s';
+            ''' % categoryName
+            self.cursor.execute(query)
+            categoryID = self.cursor.fetchone()[0]
         
-    
-# db_ops = db_operations()
-# EMAIL CHECK
-# emailToCheck = input("enter the email ")
-# passwordToCheck = input("enter the password ")
-# db_ops.check_password(emailToCheck, passwordToCheck)
+        query = '''
+        INSERT INTO tasks (title, dueDate, categoryID, groupID)
+        VALUES ('%s','%s','%s','%s');
+        ''' %(title, dueDate, categoryID, groupID)
+        self.cursor.execute(query)
+        self.connection.commit()
 
-# NEW USER
-# name = input("enter new name: ")
-# email = input("enter new email: ")
-# password = input("enter new password: ")
-# db_ops.new_user(name, email, password)
+    def delete_task(self, taskID):
+        query = '''
+        DELETE FROM subTasks
+        WHERE taskID = '%s';
+        ''' % taskID
+        self.cursor.execute(query)
+        self.connection.commit()
 
-# group_list = db_ops.get_groups(emailToCheck)
-# for i in group_list:
-#     db_ops.get_group_tasks(i)
-    
-# db_ops.get_subtasks(1)
-# group = input("what group is user moving to:")
-# db_ops.change_group(emailToCheck, group)
+        query = '''
+        DELETE FROM tasks
+        WHERE taskID = '%s';
+        ''' % taskID
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def set_task_status(self, taskID, newStatus):
+        query = '''
+        UPDATE tasks
+        SET status = '%s'
+        WHERE taskID = '%s'
+        ''' % (newStatus, taskID)
+        self.cursor.execute(query)
+        self.connection.commit()
+
+    def set_subtask_status(self, taskID, newStatus):
+        query = '''
+        UPDATE subTasks
+        SET status = '%s'
+        WHERE subTaskID = '%s'
+        ''' % (newStatus, taskID)
+        self.cursor.execute(query)
+        self.connection.commit()
