@@ -8,6 +8,9 @@
     * email: lgaudet@chapman.edu
     * ID: 2377818
 
+### Known Errors:
+* None
+
 ### Instructions
 
 The only dependency should be flask, to install run:
