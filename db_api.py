@@ -17,13 +17,6 @@ class db_operations:
         self.connection.close()
         self.cursor.close()
 
-    # def get_all_users(self):
-    #     query = '''
-    #     SELECT * 
-    #     FROM users;
-    #     '''
-    #     self.cursor.execute(query)
-    #     return self.cursor.fetchall()
 
     #checking if the email already exists
     def check_email(self, emailToCheck):
@@ -111,16 +104,6 @@ class db_operations:
             group_list.append(i[0])
         print("group list is:", group_list)
         return group_list
-    
-    # def get_group_categories(self, groupID):
-    #     query = '''
-    #     SELECT name
-    #     FROM userGroups
-    #     WHERE groupID = '%s';
-    #     ''' % groupID
-    #     self.cursor.execute(query)
-    #     result = self.cursor.fetchone()[0]
-    #     return result
     
     #get group names from id
     def get_group_names(self, groupID):
