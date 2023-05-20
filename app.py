@@ -1,5 +1,3 @@
-# from flask import Flask
-# from flask import Flask, request, render_template, 
 from flask import Flask, request, render_template, redirect, url_for, session, Response
 import csv
 from db_api import db_operations
@@ -10,7 +8,6 @@ app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Qfdz\n\xec]/'
 
 db_ops = db_operations()
-# print(db_ops.get_all_users())
 
 # Define a route for the root URL
 @app.route('/', methods=['GET', 'POST'])
@@ -118,6 +115,7 @@ def dashboard():
 
 @app.route('/create_task', methods=['GET', 'POST'])
 def create_task():
+    # handles form submission, sends info to db api
     if request.method == 'POST':
         title = request.form['title']
         dueDate = request.form['duedate']
@@ -131,9 +129,9 @@ def create_task():
         return render_template('create_task.html')
     
 
-# CHANGE TO SUBTASK STUFF STIL
 @app.route('/create_subtask', methods=['GET', 'POST'])
 def create_subtask():
+    # handles form submittion
     if request.method == 'POST':
         title = request.form['title']
         dueDate = request.form['duedate']
@@ -159,11 +157,13 @@ def delete_subtask():
     print('task to delete: ', task_id)
     db_ops.delete_subtask(task_id)
     return redirect(url_for('subtasks'))
-    # delete the task with the given ID from the database
+    # delete the subtask with the given ID from the database
     # return a response indicating success or failure
+
 
 @app.route('/subtasks', methods=['GET', 'POST'])
 def subtasks():
+    # handles form submission
     if request.method == 'POST':
         print(request.form['task_id'])
         info = {}
@@ -177,6 +177,7 @@ def subtasks():
         print(info['subtasks'])
         return render_template('subtasks.html', info=info)
     else:
+        # gets subtasks form db api and returns them to the subtasks page
         info = {}
         info['task_name'] = db_ops.get_taskname_from_id(session['curFocusedTaskID'])
         info['subtasks'] = db_ops.get_subtasks(session['curFocusedTaskID'])
@@ -191,6 +192,8 @@ def subtasks():
 @app.route('/update_task_status', methods=['POST'])
 def update_task_status():
     task_id = request.form.get('taskId')
+    
+    # checks status of task on frontent
     newStatus = 1 if request.form.get('completed')=='true' else 0
     
     print(task_id, newStatus)
@@ -199,9 +202,12 @@ def update_task_status():
 
     return "updated status"
 
+
 @app.route('/update_subtask_status', methods=['POST'])
 def update_subtask_status():
     task_id = request.form.get('taskId')
+
+    # checks status of task on frontent
     newStatus = 1 if request.form.get('completed')=='true' else 0
     
     print(task_id, newStatus)
