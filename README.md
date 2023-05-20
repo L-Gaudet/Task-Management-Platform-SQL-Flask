@@ -2,8 +2,8 @@
 
 ### Student Info
 * Esha Yamani
-    * email:
-    * ID: 
+    * email: yamani@chapman.edu
+    * ID: 2377310
 * Lucas Gaudet
     * email: lgaudet@chapman.edu
     * ID: 2377818
