@@ -59,7 +59,8 @@ class db_operations:
         else:
             print("the passwords don't match")
             return 0
-        
+    
+    #getting user id from email    
     def get_user_id(self, email):
         query = '''
         SELECT userID
@@ -70,6 +71,7 @@ class db_operations:
         # print(self.cursor.fetchone()[0])
         return self.cursor.fetchone()[0]
     
+    #getting user name from id
     def get_user_name(self, id):
         query = '''
         SELECT name
@@ -79,7 +81,6 @@ class db_operations:
         self.cursor.execute(query)
         return self.cursor.fetchone()[0]
 
-    
     #insert a new user
     def new_user(self, nameToAdd, emailToAdd, passwordToAdd):
         print("Adding new user")
@@ -104,6 +105,7 @@ class db_operations:
         ''' % lookUpID
         self.cursor.execute(query)
         results = self.cursor.fetchall()
+        #create a list of groups
         group_list = []
         for i in results:
             group_list.append(i[0])
@@ -120,6 +122,7 @@ class db_operations:
     #     result = self.cursor.fetchone()[0]
     #     return result
     
+    #get group names from id
     def get_group_names(self, groupID):
         query = '''
         SELECT name
@@ -178,10 +181,8 @@ class db_operations:
         ''' % (group, userID)
         self.cursor.execute(query)
         self.connection.commit()
-        #change task group?
-        #print("moving task to group:", group)
 
-
+    #insert new task into table
     def insert_new_task(self, title, dueDate, categoryName, groupName, userID):
         # get group ID
             # if it does not exist, create it
@@ -194,13 +195,14 @@ class db_operations:
             self.cursor.execute(query)
             groupID = self.cursor.fetchone()[0]
         except:
+            #insert query
             query = '''
             INSERT into userGroups(name)
             VALUES('%s');
             ''' % groupName
             self.cursor.execute(query)
             self.connection.commit()
-            
+            #get groupID
             query = '''
             SELECT groupID
             FROM userGroups
@@ -208,7 +210,7 @@ class db_operations:
             ''' % groupName
             self.cursor.execute(query)
             groupID = self.cursor.fetchone()[0]
-
+            #insert both pieces of information
             query = '''
             INSERT into groupMembers
             VALUES('%i', '%i');
@@ -227,13 +229,14 @@ class db_operations:
             self.cursor.execute(query)
             categoryID = self.cursor.fetchone()[0]
         except:
+            #create new value if it doesn't exist
             query = '''
             INSERT into category(name)
             VALUES('%s');
             ''' % categoryName
             self.cursor.execute(query)
             self.connection.commit()
-            
+            #get the new cateogryID
             query = '''
             SELECT categoryID
             FROM category
@@ -249,6 +252,7 @@ class db_operations:
         self.cursor.execute(query)
         self.connection.commit()
 
+    #insert a new subtask into table
     def insert_new_subtask(self, title, dueDate, parent_task):
         query = '''
         INSERT into subTasks(title, dueDate, taskID)
@@ -257,6 +261,7 @@ class db_operations:
         self.cursor.execute(query)
         self.connection.commit()
 
+    #delete just the subtask
     def delete_subtask(self, subTaskID):
         query = '''
         DELETE FROM subTasks
@@ -265,6 +270,7 @@ class db_operations:
         self.cursor.execute(query)
         self.connection.commit()
 
+    #deleting a task and its subtasks
     def delete_task(self, taskID):
         query = '''
         DELETE FROM subTasks
@@ -279,23 +285,21 @@ class db_operations:
         ''' % taskID
         self.cursor.execute(query)
         self.connection.commit()
-        
+    
+    #delete tasks and its subtasks using transaction
     def delete_task_transaction(self, taskID):
         try:
-
-            # Start the SQL transaction
+            #start SQL transaction
             self.cursor.execute("START TRANSACTION")
-
-            # Delete subtasks associated with the given task ID
+            #delete subtasks associated with the given task ID
             self.cursor.execute("DELETE FROM subTasks WHERE taskID = %s", (taskID,))
-
-            # Delete the task with the given task ID
+            #delete the task with the given task ID
             self.cursor.execute("DELETE FROM tasks WHERE taskID = %s", (taskID,))
-
             self.connection.commit()
         except mysql.connector.Error as error:
             self.connection.rollback()
 
+    #change the complete or incomplete status for task
     def set_task_status(self, taskID, newStatus):
         query = '''
         UPDATE tasks
@@ -305,6 +309,7 @@ class db_operations:
         self.cursor.execute(query)
         self.connection.commit()
 
+    #change the complete or incomplete status for subtask
     def set_subtask_status(self, taskID, newStatus):
         query = '''
         UPDATE subTasks
@@ -324,8 +329,8 @@ class db_operations:
         taskName = self.cursor.fetchone()[0]
         return taskName
     
+    #creating a view of groups, tasks and users
     def get_view(self):
-        #create a view of groups, tasks and users
         #this is for all users not individual
         try: 
             query = '''
@@ -365,7 +370,8 @@ class db_operations:
         self.cursor.execute(query)
         total = self.cursor.fetchone()[0]
         return total
-        
+    
+    #convert the view into a csv file  
     def convert_to_csv(self, userID):
         #need to make sure the create view function runs first
         query = '''
