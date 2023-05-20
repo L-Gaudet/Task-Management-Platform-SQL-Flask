@@ -1,4 +1,5 @@
 import mysql.connector
+import csv
 
 class db_operations: 
     def __init__(self):
@@ -278,7 +279,23 @@ class db_operations:
         ''' % taskID
         self.cursor.execute(query)
         self.connection.commit()
-
+        
+    def delete_task_transaction(self, taskID):
+        query = '''
+        BEING TRANSACTION;
+        DELETE subTasks
+        FROM subTasks
+        WHERE taskID = '%s';
+        DELETE tasks
+        FROM tasks
+        WHERE taskID = '%s';
+        COMMIT;
+        ''' % (taskID, taskID)
+        try:
+            self.cursor.execute(query)
+        except mysql.connector.Error as error:
+            self.connection.rollback()
+        self.connection.commit()
 
     def set_task_status(self, taskID, newStatus):
         query = '''
@@ -307,3 +324,60 @@ class db_operations:
         self.cursor.execute(query)
         taskName = self.cursor.fetchone()[0]
         return taskName
+    
+    def get_view(self):
+        #create a view of groups, tasks and users
+        #this is for all users not individual
+        try: 
+            query = '''
+            CREATE VIEW vDetails AS
+            SELECT g.name, t.title, t.dueDate, c.name AS category, u.name AS user
+            FROM tasks AS t
+            INNER JOIN userGroups AS g
+                ON t.groupID = g.groupID
+            INNER JOIN category AS c
+                ON t.categoryID = c.categoryID
+            INNER JOIN groupMembers AS gM 
+                ON g.groupID = gM.groupID
+            INNER JOIN users AS u 
+                ON gM.userID = u.userID;
+            '''
+            self.cursor.execute(query)
+            self.connection.commit()
+        except:
+            pass
+        #print out values in view
+        query = '''
+        SELECT *
+        FROM vDetails;
+        '''
+        self.cursor.execute(query)
+        self.connection.fetchall()
+        
+    #aggregate - get total number of tasks
+    def total_tasks(self, userID):
+        query = '''
+        SELECT COUNT(taskID)
+        FROM tasks AS t
+        INNER JOIN groupMembers AS g
+            ON t.groupID = g.groupID
+        WHERE g.userID = '%s'; 
+        ''' %userID
+        
+    def convert_to_csv(self):
+        #need to make sure the create view function runs first
+        query = '''
+        SELECT *
+        FROM vDetails
+        '''
+        self.cursor.execute(query)
+        results = self.cursor.fetchall()
+        #getting column names
+        column_names = [desc[0] for desc in self.cursor.description]
+        #writing to csv file
+        with open("tasks.csv", "w", newline="") as file:
+             writer = csv.writer(file)
+             writer.writerow(column_names)
+             writer.writerows(results)
+        print("done")
+    
