@@ -1,8 +1,9 @@
 # from flask import Flask
 # from flask import Flask, request, render_template, 
-from flask import Flask, request, render_template, redirect, url_for, session
-
+from flask import Flask, request, render_template, redirect, url_for, session, Response
+import csv
 from db_api import db_operations
+import io
 
 
 app = Flask(__name__)
@@ -69,7 +70,22 @@ def logout():
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if request.method == 'POST':
-        pass
+        try:
+            # Create a CSV string using the csv module
+            csv_data = io.StringIO()
+            csv_writer = csv.writer(csv_data)
+
+            info = db_ops.convert_to_csv(session['currentUserID'])
+            csv_writer.writerow(info['column_names']) 
+            csv_writer.writerows(info['results'])
+
+            # Create a response with the CSV content
+            response = Response(csv_data.getvalue(), mimetype='text/csv')
+            response.headers.set('Content-Disposition', 'attachment', filename='tasks.csv')
+            
+            return response
+        except:
+            pass
     else:
         # get username and groups and tasks
         session['curFocusedTaskID'] = None
@@ -77,6 +93,8 @@ def dashboard():
         userGroupIDs = db_ops.get_groups(session['currentUserID'])
         print(userGroupIDs)
         groupTasks = {}
+
+        userInfo['totalTasks'] = db_ops.total_tasks(session['currentUserID'])
 
         # get names of each group
         groupNames = [db_ops.get_group_names(id) for id in userGroupIDs ] 
@@ -130,7 +148,7 @@ def create_subtask():
 @app.route('/delete_task', methods=['POST'])
 def delete_task():
     task_id = request.form['task_id']
-    db_ops.delete_task(task_id)
+    db_ops.delete_task_transaction(task_id)
     return redirect(url_for('dashboard'))
     # delete the task with the given ID from the database
     # return a response indicating success or failure

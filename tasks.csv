@@ -1,0 +1,8 @@
+name,title,dueDate,category,user
+database project,final project,2023-05-04 20:30:00,school,Esha
+database project,final project,2023-05-04 20:30:00,school,Lucas
+database project,groceries,2023-05-09 00:00:00,school,Esha
+database project,groceries,2023-05-09 00:00:00,school,Lucas
+personal,homework 4,2023-05-08 00:00:00,errands,Lucas
+personal,dinner,2023-05-04 00:00:00,errands,Lucas
+family,wash the car,2023-05-07 10:30:00,errands,Lucas

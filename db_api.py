@@ -281,21 +281,20 @@ class db_operations:
         self.connection.commit()
         
     def delete_task_transaction(self, taskID):
-        query = '''
-        BEING TRANSACTION;
-        DELETE subTasks
-        FROM subTasks
-        WHERE taskID = '%s';
-        DELETE tasks
-        FROM tasks
-        WHERE taskID = '%s';
-        COMMIT;
-        ''' % (taskID, taskID)
         try:
-            self.cursor.execute(query)
+
+            # Start the SQL transaction
+            self.cursor.execute("START TRANSACTION")
+
+            # Delete subtasks associated with the given task ID
+            self.cursor.execute("DELETE FROM subTasks WHERE taskID = %s", (taskID,))
+
+            # Delete the task with the given task ID
+            self.cursor.execute("DELETE FROM tasks WHERE taskID = %s", (taskID,))
+
+            self.connection.commit()
         except mysql.connector.Error as error:
             self.connection.rollback()
-        self.connection.commit()
 
     def set_task_status(self, taskID, newStatus):
         query = '''
@@ -363,8 +362,11 @@ class db_operations:
             ON t.groupID = g.groupID
         WHERE g.userID = '%s'; 
         ''' %userID
+        self.cursor.execute(query)
+        total = self.cursor.fetchone()[0]
+        return total
         
-    def convert_to_csv(self):
+    def convert_to_csv(self, userID):
         #need to make sure the create view function runs first
         query = '''
         SELECT *
@@ -374,10 +376,9 @@ class db_operations:
         results = self.cursor.fetchall()
         #getting column names
         column_names = [desc[0] for desc in self.cursor.description]
-        #writing to csv file
-        with open("tasks.csv", "w", newline="") as file:
-             writer = csv.writer(file)
-             writer.writerow(column_names)
-             writer.writerows(results)
+
+        info = {}
+        info['column_names'] = column_names
+        info['results'] = results
         print("done")
-    
+        return info
