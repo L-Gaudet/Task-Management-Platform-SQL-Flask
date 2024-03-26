@@ -1,12 +1,13 @@
-# CPSC 408 Final Project
+# Task Management Platform
+#### CPSC 408 Final Project
 
 ### Student Info
-* Esha Yamani
-    * email: yamani@chapman.edu
-    * ID: 2377310
 * Lucas Gaudet
     * email: lgaudet@chapman.edu
     * ID: 2377818
+* Esha Yamani
+    * email: yamani@chapman.edu
+    * ID: 2377310
 
 ### Known Errors:
 * None
@@ -17,7 +18,8 @@ The only dependency should be flask, to install run:
 ```
 pip install Flask
 ```
-Before starting the program, first create the tables and views by running the .SQL file.
+Before starting the program, ensure you have a MySQL server running and modify the credentials in the `db_api.py` file to match. 
+Then create the tables and views by running the .SQL file.
 
 The database file is included, be sure to load that so you have data in the database.
 
